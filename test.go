@@ -1,37 +1,22 @@
-package main
-
-import (
-	"log"
-	"net/http"
+var app = require('express')();
+var server = require('http').Server(app);
+var io = require('socket.io')(server);
+var redis = require('redis');
  
-	"github.com/googollee/go-socket.io"
-)
-
-func main() {
-log.Println("iam hear")
-	server, err := socketio.NewServer(nil)
-	if err != nil {
-		log.Fatal(err)
-	}
-	server.On("connection", func(so socketio.Socket) {
-		so.Join("chat")
-		so.On("chat message", func(msg string) {
-
-
-log.Println("emit:",msg)
-			log.Println("emit:", so.Emit("chat message", msg))
-			so.BroadcastTo("chat", "chat message", msg)
-		})
-		so.On("disconnection", func() {
-			log.Println("on disconnect")
-		})
-	})
-	server.On("error", func(so socketio.Socket, err error) {
-		log.Println("error:", err)
-	})
-
-	http.Handle("/socket.io/", server)
-	http.Handle("/", http.FileServer(http.Dir("./asset")))
-	log.Println("Serving at localhost:5000...")
-	log.Fatal(http.ListenAndServe(":8008", nil))
-}
+server.listen(8890);
+io.on('connection', function (socket) {
+ 
+  console.log("new client connected");
+  var redisClient = redis.createClient();
+  redisClient.subscribe('message');
+ 
+  redisClient.on("message", function(channel, message) {
+    console.log("mew message in queue "+ message + "channel");
+    socket.emit(channel, message);
+  });
+ 
+  socket.on('disconnect', function() {
+    redisClient.quit();
+  });
+ 
+});
