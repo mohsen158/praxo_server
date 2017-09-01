@@ -6,7 +6,7 @@ var redis = require('redis');
 server.listen(8890);
 io.on('connection', function (socket) {
  
-  console.log("new client connected");
+  console.log("new client dddddddd connected");
   var redisClient = redis.createClient();
   redisClient.subscribe('message');
  
