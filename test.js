@@ -2,11 +2,14 @@ var app = require('express')();
 var server = require('http').Server(app);
 var io = require('socket.io')(server);
 var redis = require('redis');
- console.log("hi MOHSEN hiiiiiiiii");
+ console.log("Server Start");
 server.listen(8890);
 io.on('connection', function (socket) {
  
-  console.log("new client dddddddd connected");
+
+    var handshakeData = socket.request;
+    newuserid = handshakeData._query['username']
+    console.log("new client username=",newuserid);
   var redisClient = redis.createClient();
   redisClient.subscribe('message');
  
