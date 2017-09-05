@@ -12,7 +12,7 @@ var storage = multer.diskStorage({
         cb(null,  file.originalname  )
     }
 })
-
+var path = require('path')
 var upload = multer({ storage: storage })
 server.listen(8891);
 console.log("Server Start");
@@ -47,6 +47,30 @@ function write(value) {
 
 }
 
+app.get('/file/:name', function (req, res, next) {
+
+    var options = {
+        root: __dirname + '/uploads/',
+        dotfiles: 'deny',
+        headers: {
+            'x-timestamp': Date.now(),
+            'x-sent': true
+        }
+    };
+
+
+    var fileName = req.params.name;
+    res.sendFile(fileName, options, function (err) {
+        if (err) {
+            next(err);
+        } else {
+            console.log('Sent:', fileName);
+        }
+    });
+
+});
+
+
 
 app.get('/',function (req,res) {
     res.send('hiiiiiiiiiiiiiii')
@@ -57,6 +81,7 @@ app.post('/uploadImage', upload.single('picture'), function (req, res, next) {
    req.file.filename='test.jpg';
    req.file.path='/uploads/test.jpg';
     console.log(req.file)
+    res.send('ok')
     // req.file is the `avatar` file
     // req.body will hold the text fields, if there were any
 })
